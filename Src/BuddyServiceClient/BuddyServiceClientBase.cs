@@ -128,23 +128,15 @@ namespace BuddySDK.BuddyServiceClient
             PlatformAccess.Current.InvokeOnUiThread(callback);
         }
 
-        public Task<BuddyCallResult<T>> CallMethodAsync<T>(string verb, string path, object parameters = null)
-        {   
-            var tcs = new TaskCompletionSource<BuddyCallResult<T>>();
-
-
-
-            CallMethodAsync<T>(verb, path, parameters, (bcr) =>
-            {
-
-                tcs.TrySetResult(bcr);
-
-
-            });
-            return tcs.Task;
+        public async Task<BuddyCallResult<T>> CallMethodAsync<T>(
+            string verb, 
+            string path, 
+            object parameters = null)
+        {
+            return await CallMethodAsyncCore<T>(verb, path, parameters).ConfigureAwait(false);
         }
 
-        protected abstract void CallMethodAsync<T>(string verb, string path, object parameters, Action<BuddyCallResult<T>> callback);
+        protected abstract Task<BuddyCallResult<T>> CallMethodAsyncCore<T>(string verb, string path, object parameters);
 
         private string serviceRoot;
         public string ServiceRoot

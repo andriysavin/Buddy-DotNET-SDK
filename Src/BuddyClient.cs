@@ -410,8 +410,6 @@ namespace BuddySDK
             return result.IsSuccess;
         }
 
-      
-
         private class AuthenticatedUser  {
            
             public static User FromSettings(AppSettings settings) {
@@ -423,7 +421,6 @@ namespace BuddySDK
                 return null;
             }
         }
-
 
         private User GetUser() {
             if (!_userInitialized) {
@@ -567,7 +564,6 @@ namespace BuddySDK
             }
 
         }
-
     
         internal async Task<BuddyResult<T>> HandleServiceResult<T>( BuddyCallResult<T> serviceResult, bool allowThrow = false){
             var result = new BuddyResult<T> ();
@@ -659,7 +655,6 @@ namespace BuddySDK
             return tcs.Task;
         }
      
-
         private void ClearCredentials(bool clearUser = true, bool clearDevice = true) {
 
             if (clearDevice) {
@@ -736,7 +731,6 @@ namespace BuddySDK
             }
         }
 
-
         private async Task CheckConnectivity(TimeSpan waitTime) {
             var r = await GetAsync<string>( "/service/ping",null);
 
@@ -753,7 +747,6 @@ namespace BuddySDK
                 await CheckConnectivity(waitTime);
             }
         }
-
 
         protected virtual async Task OnConnectivityChanged(ConnectivityLevel level) {
             using (await new AsyncLock().LockAsync())
@@ -1085,47 +1078,38 @@ namespace BuddySDK
         #region REST
 
         //TODO Much awesome refactoring and testing
-        private Task<BuddyResult<T>> GenericRestCall<T>(string verb, string path, object parameters, bool allowThrow, TaskCompletionSource<BuddyResult<T>> promise)
+        private async Task<BuddyResult<T>> GenericRestCall<T>(string verb, string path, object parameters, bool allowThrow)
         {
-            GetService()
-                .ContinueWith(service =>
-                     service.Result.CallMethodAsync<T>(verb, path, AddLocationToParameters(parameters))
-                        .ContinueWith(callResult => {
-                            HandleServiceResult(callResult.Result, allowThrow)
-                                 .ContinueWith(procResult =>
-                                 {
-                                     if (procResult.IsFaulted)
-                                     {
-                                         promise.SetException(procResult.Exception);
-                                     }
-                                     else
-                                     {
-                                         promise.SetResult(procResult.Result);
-                                     }
-                                 });
-                         })
-                ).ConfigureAwait(false);
-            return promise.Task;
+            var service = await GetService().ConfigureAwait(false);
+
+            var callResult = await service.CallMethodAsync<T>(
+                verb, 
+                path, 
+                AddLocationToParameters(parameters)).ConfigureAwait(false);
+
+            var procResult = await HandleServiceResult(callResult, allowThrow).ConfigureAwait(false);
+            
+            return procResult;
         }
 
         public  Task<BuddyResult<T>> GetAsync<T>(string path, object parameters = null){
-            return GenericRestCall(GetVerb, path, parameters, false, new TaskCompletionSource<BuddyResult<T>>());
+            return GenericRestCall<T>(GetVerb, path, parameters, false);
         }
 
         public Task<BuddyResult<T>> PostAsync<T>(string path, object parameters = null){
-            return GenericRestCall(PostVerb, path, parameters, false, new TaskCompletionSource<BuddyResult<T>>());
+            return GenericRestCall<T>(PostVerb, path, parameters, false);
         }
 
         public Task<BuddyResult<T>> PatchAsync<T>(string path, object parameters = null){
-            return GenericRestCall(PatchVerb, path, parameters, false, new TaskCompletionSource<BuddyResult<T>>());
+            return GenericRestCall<T>(PatchVerb, path, parameters, false);
         }
 
         public Task<BuddyResult<T>> PutAsync<T>(string path, object parameters = null){
-            return GenericRestCall(PutVerb, path, parameters, false, new TaskCompletionSource<BuddyResult<T>>());
+            return GenericRestCall<T>(PutVerb, path, parameters, false);
         }
 
         public Task<BuddyResult<T>> DeleteAsync<T>(string path, object parameters = null){
-            return GenericRestCall(DeleteVerb, path, parameters, false, new TaskCompletionSource<BuddyResult<T>>());
+            return GenericRestCall<T>(DeleteVerb, path, parameters, false);
         }
         #endregion
     }

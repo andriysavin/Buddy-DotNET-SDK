@@ -60,31 +60,42 @@ namespace BuddySDK
             }
         }
 
-        public static Task<BuddyResult<T>> GetAsync<T>(string path, object parameters = null)
+        public static async Task<BuddyResult<T>> GetAsync<T>(string path, object parameters = null)
         {
-            return CurrentInstance.GetAsync<T>(path, parameters);
+            // Do await even in this trivial case 
+            // for this method to appear in debugger's call stack.
+            return await CurrentInstance.GetAsync<T>(path, parameters).ConfigureAwait(false);
         }
-        public static Task<BuddyResult<T>> PostAsync<T>(string path, object parameters = null)
+        public static async Task<BuddyResult<T>> PostAsync<T>(string path, object parameters = null)
         {
-            return CurrentInstance.PostAsync<T>(path, parameters);
+            // Do await even in this trivial case 
+            // for this method to appear in debugger's call stack.
+            return await CurrentInstance.PostAsync<T>(path, parameters).ConfigureAwait(false);
         }
-        public static Task<BuddyResult<T>> PutAsync<T>(string path, object parameters = null)
+        public static async Task<BuddyResult<T>> PutAsync<T>(string path, object parameters = null)
         {
-            return CurrentInstance.PutAsync<T>(path, parameters);
+            // Do await even in this trivial case 
+            // for this method to appear in debugger's call stack.
+            return await CurrentInstance.PutAsync<T>(path, parameters).ConfigureAwait(false);
         }
-        public static Task<BuddyResult<T>> PatchAsync<T>(string path, object parameters = null)
+        public static async Task<BuddyResult<T>> PatchAsync<T>(string path, object parameters = null)
         {
-            return CurrentInstance.PatchAsync<T>(path, parameters);
+            // Do await even in this trivial case 
+            // for this method to appear in debugger's call stack.
+            return await CurrentInstance.PatchAsync<T>(path, parameters).ConfigureAwait(false);
         }
-        public static Task<BuddyResult<T>> DeleteAsync<T>(string path, object parameters = null)
+        public static async Task<BuddyResult<T>> DeleteAsync<T>(string path, object parameters = null)
         {
-            return CurrentInstance.DeleteAsync<T>(path, parameters);
+            // Do await even in this trivial case 
+            // for this method to appear in debugger's call stack.
+            return await CurrentInstance.DeleteAsync<T>(path, parameters).ConfigureAwait(false);
         }
        
-        public static Task<User> GetCurrentUserAsync (bool reload = false)
+        public static async Task<User> GetCurrentUserAsync (bool reload = false)
         {
-           
-            return CurrentInstance.GetCurrentUserAsync (reload);
+            // Do await even in this trivial case 
+            // for this method to appear in debugger's call stack.
+            return await CurrentInstance.GetCurrentUserAsync (reload).ConfigureAwait(false);
         }
 
         public static void RunOnUiThread(Action a) {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BuddySDK.BuddyServiceClient
 {
@@ -144,8 +145,15 @@ namespace BuddySDK.BuddyServiceClient
             BuddySDK.PlatformAccess.Current.ShowActivity = false;
         }
        
-        protected override void CallMethodAsync<T>(string verb, string path, object parameters, Action<BuddyCallResult<T>> callback)
+        protected override Task<BuddyCallResult<T>> CallMethodAsyncCore<T>(
+            string verb, 
+            string path, 
+            object parameters)
         {
+            // TODO: Refactor to use async/await instead of
+            // TCS/callbacks.
+            var tcs = new TaskCompletionSource<BuddyCallResult<T>>();
+
             DateTime start = DateTime.Now;
 
             StartRequest ();
@@ -154,7 +162,7 @@ namespace BuddySDK.BuddyServiceClient
             {
                 EndRequest();
                 if (ex == null) {
-                    callback(bcr);
+                    tcs.TrySetResult(bcr);
                     return;
                 }
                
@@ -187,7 +195,7 @@ namespace BuddySDK.BuddyServiceClient
 
 
                 OnServiceException(ex);
-                callback(bcr);
+                tcs.TrySetResult(bcr);
             };
 
             var d = ParametersToDictionary (parameters);
@@ -296,7 +304,7 @@ namespace BuddySDK.BuddyServiceClient
                   
             });
 
-
+            return tcs.Task;
         }
 
         private const int EncodeChunk = 32000;
